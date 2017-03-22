@@ -20,8 +20,12 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @RestController
 public class IronGramController {
@@ -74,6 +78,7 @@ public class IronGramController {
             HttpSession session,
             HttpServletResponse response,
             String recipient,
+            long seconds,
             MultipartFile photo
     ) throws Exception {
         String username = (String) session.getAttribute("username");
@@ -92,7 +97,7 @@ public class IronGramController {
             throw new Exception("Only images are allowed");
         }
 
-        File dir = new File("public/photos");
+        File dir = new File("public");
         dir.mkdirs();
         File photoFile = File.createTempFile("photo", photo.getOriginalFilename(), dir /*new File("public")*/);
         FileOutputStream fos = new FileOutputStream(photoFile);
@@ -102,6 +107,7 @@ public class IronGramController {
         p.setSender(sendUser);
         p.setRecipient(recipientUser);
         p.setFilename(photoFile.getName());
+        p.setSeconds(seconds);
         photos.save(p);
 
         response.sendRedirect("/");
@@ -112,15 +118,43 @@ public class IronGramController {
     @RequestMapping(path = "/photos", method = RequestMethod.GET)
     public List<Photo> showPhotos(HttpSession session) throws Exception {
         String username = (String) session.getAttribute("username");
+        //Long seconds = (Long) session.getAttribute("seconds");
         if (username == null) {
             throw new Exception("Not logged in.");
         }
         User user = users.findFirstByName(username);
+        //File file = new File("public");
+
+        time(photos.findByRecipient(user));
+
         return photos.findByRecipient(user);
     }
+
+    public void deletePhoto(Photo photo) {
+        photos.delete(photo); //delete the item from database
+        File f = new File("public/" + photo.getFilename());
+        f.delete();
+    }
+
+    public void time(List<Photo> allPhotos) {
+        for (Photo photo: allPhotos) {
+            Timer timer = new Timer();
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    deletePhoto(photo);
+                }
+            };
+            timer.schedule(timerTask, photo.getSeconds() * 1000);
+        }
+    }
+
 
     //TODO move the actual viewing of the photo?
     //TODO keep it in place, but capture time from the session
     //TODO call a method that handles the deleting and redirecting
     //TODO /photos would require it to return a type List
 }
+//                  deletePhotoByTime(int time, Photo photo){
+//                          //stuff
+//                  }

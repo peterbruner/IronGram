@@ -18,6 +18,9 @@ public class Photo {
     @Column(nullable = false)
     private String filename;
 
+    @Column(nullable = false)
+    private Long seconds;
+
     public Photo() {
     }
 
@@ -57,6 +60,14 @@ public class Photo {
 
     public void setFilename(String filename) {
         this.filename = filename;
+    }
+
+    public Long getSeconds() {
+        return seconds;
+    }
+
+    public void setSeconds(Long seconds) {
+        this.seconds = seconds;
     }
 }
 
