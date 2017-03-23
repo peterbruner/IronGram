@@ -8,6 +8,7 @@ import com.theironyard.novauc.services.UserRepository;
 import com.theironyard.novauc.utilities.PasswordStorage;
 import org.h2.tools.Server;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -79,6 +80,7 @@ public class IronGramController {
             HttpServletResponse response,
             String recipient,
             long seconds,
+            boolean checkbox,
             MultipartFile photo
     ) throws Exception {
         String username = (String) session.getAttribute("username");
@@ -108,6 +110,7 @@ public class IronGramController {
         p.setRecipient(recipientUser);
         p.setFilename(photoFile.getName());
         p.setSeconds(seconds);
+        p.setCheckbox(checkbox);
         photos.save(p);
 
         response.sendRedirect("/");
@@ -149,12 +152,13 @@ public class IronGramController {
         }
     }
 
+    @RequestMapping("/public-photos/{name}")
+    public List<Photo> publicPhotos(@PathVariable("name") String name) {
+        return photos.findAllBySenderAndCheckbox(
+                users.findFirstByName(name), false
+        );
+    }
 
-    //TODO move the actual viewing of the photo?
-    //TODO keep it in place, but capture time from the session
-    //TODO call a method that handles the deleting and redirecting
-    //TODO /photos would require it to return a type List
+
+
 }
-//                  deletePhotoByTime(int time, Photo photo){
-//                          //stuff
-//                  }

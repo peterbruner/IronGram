@@ -21,6 +21,9 @@ public class Photo {
     @Column(nullable = false)
     private Long seconds;
 
+    @Column(nullable = false)
+    private boolean checkbox;
+
     public Photo() {
     }
 
@@ -68,6 +71,14 @@ public class Photo {
 
     public void setSeconds(Long seconds) {
         this.seconds = seconds;
+    }
+
+    public boolean isCheckbox() {
+        return checkbox;
+    }
+
+    public void setCheckbox(boolean checkbox) {
+        this.checkbox = checkbox;
     }
 }
 

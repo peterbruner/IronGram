@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface PhotoRepository extends CrudRepository<Photo, Integer>{
     List<Photo> findByRecipient(User user);
+    List<Photo> findAllBySenderAndCheckbox(User sender, boolean checkbox);
 }
